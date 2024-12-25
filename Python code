@@ -1,0 +1,92 @@
+import requests
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import numpy as np
+import time
+from datetime import datetime
+
+class BinanceSource:
+    def __init__(self, base_url="https://api.binance.com/api/v3"):
+        self.base_url = base_url
+
+    def fetch_contract_data(self, address):
+        # Placeholder: Replace with Binance dataset retrieval logic
+        # This method should fetch Ethereum contract data based on the address provided
+        # For now, it returns synthetic data for demonstration purposes
+        return pd.DataFrame({
+            "contract_address": [address],
+            "transaction_count": [np.random.randint(1, 1000)],
+            "average_gas_used": [np.random.uniform(1, 100)],
+            "balance": [np.random.uniform(0, 100)],
+            "average_transaction_value": [np.random.uniform(0.01, 10)],
+            "unique_addresses": [np.random.randint(1, 500)],
+            "transaction_frequency": [np.random.uniform(0.1, 10)],
+            "is_fraudulent": [np.random.choice([0, 1], p=[0.95, 0.05])]
+        })
+
+def build_random_forest_model(data):
+    X = data[[
+        "transaction_count",
+        "average_gas_used",
+        "balance",
+        "average_transaction_value",
+        "unique_addresses",
+        "transaction_frequency"
+    ]]
+    y = data["is_fraudulent"]  # Assumes the dataset has a labeled "is_fraudulent" column.Replace with realtime dataset.
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    print(classification_report(y_test, y_pred))
+
+    return model
+
+def detect_fraudulent_accounts(data, model):
+    X = data[[
+        "transaction_count",
+        "average_gas_used",
+        "balance",
+        "average_transaction_value",
+        "unique_addresses",
+        "transaction_frequency"
+    ]]
+    data["predicted_fraudulent"] = model.predict(X)
+    return data[data["predicted_fraudulent"] == 1]
+
+def main():
+    source = BinanceSource()
+
+    print("Fetching contract data...")
+    addresses = ["0x123", "0x456", "0x789"]  # Example Ethereum contract addresses
+    all_data = pd.concat([source.fetch_contract_data(address) for address in addresses])
+
+    print("Building the Random Forest model...")
+    model = build_random_forest_model(all_data)
+
+    print("Detecting fraudulent accounts in real-time...")
+    while True:
+        try:
+            for address in addresses:
+                contract_data = source.fetch_contract_data(address)
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"Data fetched for {address} at {current_time}")
+
+                fraudulent_accounts = detect_fraudulent_accounts(contract_data, model)
+
+                if not fraudulent_accounts.empty:
+                    print(f"Fraudulent accounts detected for {address}:")
+                    print(fraudulent_accounts)
+
+            time.sleep(60)  # Check every minute
+        except Exception as e:
+            print(f"Error: {e}")
+            break
+
+if __name__ == "__main__":
+    main()
