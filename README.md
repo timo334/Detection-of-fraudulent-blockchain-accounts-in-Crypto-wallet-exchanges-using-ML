@@ -1,14 +1,19 @@
 Fraud Detection Workflow:
 
-Training: The" is fraudulent" column (a synthetic label in this case) is used to train the Random Forest model. In real-world applications, this would come from a labeled dataset of known fraudulent and non-fraudulent addresses.
+Training: The" is fraudulent" column (a synthetic label in this case) is used to train the Random Forest model. In real-world applications, this would come from a labeled dataset of known fraudulent and non-fraudulent addresses.The fetch_contract_data method generates synthetic data.It won't fetch real data unless replaced with actual Binance API logic.
+This is fine for testing, but update it with real API calls for production.
+
 Prediction: The model predicts whether a contract is fraudulent based on patterns in these features.
 The script uses the following features to categorize accounts as fraudulent or non-fraudulent using the Random Forest model:
+
 //Main features.//
 
 Transaction Count (transaction count): Represents the number of transactions associated with the Ethereum contract address. An unusually high or low transaction count could be indicative of abnormal activity.
 Average Gas Used (average_gas_used): The average amount of gas (a fee metric in Ethereum) used per transaction for the contract. Contracts that consistently use abnormal gas amounts may be engaging in suspicious behavior.
 Balance (balance): The current balance associated with the contract address.Very high or very low balances, especially when combined with specific patterns in transaction counts or gas usage, might signal fraudulent activity.
+
 //For enhancing fraud detection accuracy.//
+
 Average_transaction_value:Average ETH value per transaction.
 Unique addresses: Number of unique addresses interacting with the contract.
 Transaction frequency: Frequency of transactions over time.
