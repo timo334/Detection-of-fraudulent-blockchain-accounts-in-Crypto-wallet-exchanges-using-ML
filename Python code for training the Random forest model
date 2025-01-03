@@ -1,0 +1,50 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from imblearn.over_sampling import SMOTE
+
+# Load the dataset
+file_path = "/mnt/data/kaggle_dataset.csv.csv"  # Replace with your dataset path
+data = pd.read_csv(file_path)
+
+# Preview the dataset
+print(data.head())
+print(data.info())
+
+# Step 1: Data Preprocessing
+# Drop any irrelevant columns or NaN values
+data = data.dropna()
+
+# Separate features (X) and target (y)
+X = data.drop("is_fraud", axis=1)  # Replace 'is_fraud' with the column name of your target variable
+y = data["is_fraud"]
+
+# Step 2: Handle Data Imbalance Using SMOTE
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+# Step 3: Split the Data into Training and Testing Sets
+X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3, random_state=42)
+
+# Step 4: Train a Random Forest Classifier
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Step 5: Evaluate the Model
+y_pred = rf_model.predict(X_test)
+
+# Accuracy Score
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+# Classification Report
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# Confusion Matrix
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+# Step 6: Save the Model (Optional)
+import joblib
+joblib.dump(rf_model, "random_forest_model.pkl")
